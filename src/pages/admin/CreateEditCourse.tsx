@@ -17,6 +17,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Course } from "@/types";
 import { getCourseById } from "@/data/mockData";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const categories = [
   "Web Development",
@@ -32,6 +34,18 @@ const difficultyLevels = [
   { value: "intermediate", label: "Intermediate" },
   { value: "advanced", label: "Advanced" },
 ];
+
+// Quill editor modules config
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ color: [] }, { background: [] }],
+    ['link', 'image'],
+    ['clean'],
+  ],
+};
 
 const CreateEditCourse = () => {
   const { id } = useParams();
@@ -70,6 +84,13 @@ const CreateEditCourse = () => {
     setCourse((prev) => ({
       ...prev,
       [name]: name === "price" ? parseFloat(value) : value,
+    }));
+  };
+
+  const handleDescriptionChange = (content: string) => {
+    setCourse(prev => ({
+      ...prev,
+      description: content
     }));
   };
 
@@ -137,15 +158,16 @@ const CreateEditCourse = () => {
                 
                 <div className="grid gap-3">
                   <Label htmlFor="description">Course Description *</Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    value={course.description}
-                    onChange={handleChange}
-                    placeholder="Provide a detailed description of your course"
-                    rows={5}
-                    required
-                  />
+                  <div className="min-h-[200px]">
+                    <ReactQuill
+                      theme="snow"
+                      value={course.description}
+                      onChange={handleDescriptionChange}
+                      modules={quillModules}
+                      placeholder="Provide a detailed description of your course"
+                      className="h-[180px] mb-12"
+                    />
+                  </div>
                 </div>
                 
                 <div className="grid gap-3">

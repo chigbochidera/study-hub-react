@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Course, Chapter } from "@/types";
 import { getCourseById, getChaptersByCourseId } from "@/data/mockData";
 import { Edit, Trash, MoveUp, MoveDown } from "lucide-react";
+import VideoInput from "@/components/admin/courses/VideoInput";
 
 const CourseChapters = () => {
   const { courseId } = useParams();
@@ -62,6 +63,13 @@ const CourseChapters = () => {
     setNewChapter((prev) => ({
       ...prev,
       [name]: name === "duration" ? parseInt(value, 10) || 0 : value,
+    }));
+  };
+
+  const handleVideoUrlChange = (url: string) => {
+    setNewChapter((prev) => ({
+      ...prev,
+      videoUrl: url,
     }));
   };
 
@@ -315,14 +323,9 @@ const CourseChapters = () => {
                 </div>
                 
                 <div className="grid gap-3">
-                  <Label htmlFor="videoUrl">Video URL *</Label>
-                  <Input
-                    id="videoUrl"
-                    name="videoUrl"
-                    value={newChapter.videoUrl}
-                    onChange={handleChapterChange}
-                    placeholder="https://example.com/video.mp4"
-                    required
+                  <VideoInput 
+                    videoUrl={newChapter.videoUrl || ""}
+                    onVideoUrlChange={handleVideoUrlChange}
                   />
                 </div>
                 
