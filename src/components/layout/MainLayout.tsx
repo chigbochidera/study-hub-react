@@ -14,8 +14,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const { user } = useAuth();
   
   // Check if user is admin (in a real app, this would come from the backend)
-  // For demo purposes, we'll assume the user with ID 1 is an admin
-  const isAdmin = user?.id === "1" || user?.role === "admin";
+  const isAdmin = user?.role === "admin";
   
   return (
     <div className="flex flex-col min-h-screen">

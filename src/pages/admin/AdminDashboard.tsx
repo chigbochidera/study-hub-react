@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
@@ -215,7 +214,7 @@ const AdminDashboard = () => {
                   <YAxis dataKey="name" type="category" width={80} />
                   <ChartTooltip
                     content={
-                      <ChartTooltipContent indicator="bar" />
+                      <ChartTooltipContent indicator="dot" />
                     }
                   />
                   <Legend />

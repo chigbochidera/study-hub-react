@@ -16,13 +16,17 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { User } from "@/types";
 
-// Mock users data
-const mockUsers = [
+// Mock users data with proper typing
+const mockUsers: (User & { 
+  enrolledCourses: number, 
+  lastActive: string, 
+  isActive: boolean 
+})[] = [
   { 
     id: "1", 
     name: "John Doe", 
-    email: "john@example.com", 
-    role: "admin", 
+    email: "user@example.com", 
+    role: "admin" as const, 
     avatar: "/placeholder.svg",
     enrolledCourses: 4,
     lastActive: "2025-05-01T10:23:15Z",
@@ -32,7 +36,7 @@ const mockUsers = [
     id: "2", 
     name: "Jane Smith", 
     email: "jane@example.com", 
-    role: "user", 
+    role: "user" as const, 
     avatar: "/placeholder.svg",
     enrolledCourses: 2,
     lastActive: "2025-05-01T08:45:30Z",
@@ -42,7 +46,7 @@ const mockUsers = [
     id: "3", 
     name: "Alex Johnson", 
     email: "alex@example.com", 
-    role: "user", 
+    role: "user" as const, 
     avatar: "/placeholder.svg",
     enrolledCourses: 1,
     lastActive: "2025-04-29T14:12:08Z",
@@ -52,7 +56,7 @@ const mockUsers = [
     id: "4", 
     name: "Michael Brown", 
     email: "michael@example.com", 
-    role: "user", 
+    role: "user" as const, 
     avatar: "/placeholder.svg",
     enrolledCourses: 3,
     lastActive: "2025-04-30T11:05:45Z",
@@ -62,7 +66,7 @@ const mockUsers = [
     id: "5", 
     name: "Emily Wilson", 
     email: "emily@example.com", 
-    role: "user", 
+    role: "user" as const, 
     avatar: "/placeholder.svg",
     enrolledCourses: 5,
     lastActive: "2025-04-28T16:33:22Z",
