@@ -21,6 +21,14 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import CertificatePage from "./pages/certificates/CertificatePage";
 import Profile from "./pages/profile/Profile";
 
+// Admin Pages
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminCourses from "./pages/admin/AdminCourses";
+import AdminUsers from "./pages/admin/AdminUsers";
+import CreateEditCourse from "./pages/admin/CreateEditCourse";
+import CourseChapters from "./pages/admin/CourseChapters";
+import CommentModeration from "./pages/admin/CommentModeration";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -43,6 +51,16 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/certificates/:courseId" element={<CertificatePage />} />
               <Route path="/profile" element={<Profile />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/courses" element={<AdminCourses />} />
+              <Route path="/admin/courses/create" element={<CreateEditCourse />} />
+              <Route path="/admin/courses/edit/:id" element={<CreateEditCourse />} />
+              <Route path="/admin/courses/:courseId/chapters" element={<CourseChapters />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/comments" element={<CommentModeration />} />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
