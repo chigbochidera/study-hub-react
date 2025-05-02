@@ -1,51 +1,24 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { useAuth } from "@/context/AuthContext";
 import { Users, BookOpen, Award } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
-// Mock data for admin stats
-const statsData = {
-  totalUsers: 1342,
-  newUsers: 48,
-  totalCourses: 24,
-  totalEnrollments: 3218,
-  completionRate: 68,
-  revenue: "$12,450",
-};
+// Import refactored components
+import StatsCard from "@/components/admin/dashboard/StatsCard";
+import EnrollmentChart from "@/components/admin/dashboard/EnrollmentChart";
+import CourseCompletionChart from "@/components/admin/dashboard/CourseCompletionChart";
+import RecentEnrollmentsTable from "@/components/admin/dashboard/RecentEnrollmentsTable";
 
-// Mock data for charts
-const enrollmentData = [
-  { name: "Jan", enrollments: 120 },
-  { name: "Feb", enrollments: 152 },
-  { name: "Mar", enrollments: 189 },
-  { name: "Apr", enrollments: 204 },
-  { name: "May", enrollments: 236 },
-  { name: "Jun", enrollments: 248 },
-  { name: "Jul", enrollments: 262 },
-];
-
-const completionData = [
-  { name: "Web Dev", completed: 78, inProgress: 22 },
-  { name: "Python", completed: 65, inProgress: 35 },
-  { name: "AI", completed: 45, inProgress: 55 },
-  { name: "UI/UX", completed: 82, inProgress: 18 },
-  { name: "Mobile", completed: 58, inProgress: 42 },
-];
-
-// Mock recent enrollments data
-const recentEnrollments = [
-  { id: 1, student: "John Doe", course: "Complete Web Development Bootcamp", date: "2025-05-01" },
-  { id: 2, student: "Sarah Johnson", course: "Machine Learning A-Z", date: "2025-05-01" },
-  { id: 3, student: "Michael Chen", course: "iOS App Development with Swift", date: "2025-04-30" },
-  { id: 4, student: "Emily Rodriguez", course: "UI/UX Design Masterclass", date: "2025-04-30" },
-  { id: 5, student: "Alex Thompson", course: "JavaScript Algorithms and Data Structures", date: "2025-04-29" },
-];
+// Import mock data
+import { 
+  statsData, 
+  enrollmentData, 
+  completionData, 
+  recentEnrollments 
+} from "@/services/adminDashboardData";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -89,169 +62,34 @@ const AdminDashboard = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Users
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold">{statsData.totalUsers}</div>
-                  <p className="text-xs text-muted-foreground">
-                    +{statsData.newUsers} this month
-                  </p>
-                </div>
-                <Users className="h-8 w-8 text-primary/50" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Enrollments
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold">{statsData.totalEnrollments}</div>
-                  <p className="text-xs text-muted-foreground">
-                    {statsData.totalCourses} active courses
-                  </p>
-                </div>
-                <BookOpen className="h-8 w-8 text-primary/50" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Completion Rate
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-2xl font-bold">{statsData.completionRate}%</div>
-                  <p className="text-xs text-muted-foreground">
-                    Overall course completion
-                  </p>
-                </div>
-                <Award className="h-8 w-8 text-primary/50" />
-              </div>
-            </CardContent>
-          </Card>
+          <StatsCard 
+            title="Total Users"
+            value={statsData.totalUsers}
+            subtitle={`+${statsData.newUsers} this month`}
+            icon={Users}
+          />
+          <StatsCard 
+            title="Total Enrollments"
+            value={statsData.totalEnrollments}
+            subtitle={`${statsData.totalCourses} active courses`}
+            icon={BookOpen}
+          />
+          <StatsCard 
+            title="Completion Rate"
+            value={`${statsData.completionRate}%`}
+            subtitle="Overall course completion"
+            icon={Award}
+          />
         </div>
 
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Monthly Enrollments</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={{
-                  enrollments: {
-                    label: "Enrollments",
-                    color: "#8B5CF6",
-                  },
-                }}
-                className="aspect-[4/3]"
-              >
-                <LineChart data={enrollmentData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        indicator="line"
-                        labelKey="enrollments"
-                      />
-                    }
-                  />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="enrollments"
-                    stroke="#8B5CF6"
-                    strokeWidth={2}
-                    activeDot={{ r: 8 }}
-                  />
-                </LineChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Completion Rates</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={{
-                  completed: {
-                    label: "Completed",
-                    color: "#10B981",
-                  },
-                  inProgress: {
-                    label: "In Progress",
-                    color: "#F59E0B",
-                  },
-                }}
-                className="aspect-[4/3]"
-              >
-                <BarChart
-                  data={completionData}
-                  barCategoryGap={12}
-                  layout="vertical"
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={80} />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent indicator="dot" />
-                    }
-                  />
-                  <Legend />
-                  <Bar dataKey="completed" fill="#10B981" radius={[0, 4, 4, 0]} />
-                  <Bar dataKey="inProgress" fill="#F59E0B" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
+          <EnrollmentChart data={enrollmentData} />
+          <CourseCompletionChart data={completionData} />
         </div>
 
         {/* Recent Enrollments */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Enrollments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Course</TableHead>
-                  <TableHead>Date</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {recentEnrollments.map((enrollment) => (
-                  <TableRow key={enrollment.id}>
-                    <TableCell>{enrollment.student}</TableCell>
-                    <TableCell>{enrollment.course}</TableCell>
-                    <TableCell>{new Date(enrollment.date).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <RecentEnrollmentsTable enrollments={recentEnrollments} />
       </div>
     </MainLayout>
   );
