@@ -5,54 +5,29 @@ import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
+import { Label } from "@/components/ui/label";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, 
+  SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Course } from "@/types";
 import { getCourseById } from "@/data/mockData";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-
-const categories = [
-  "Web Development",
-  "Mobile Development",
-  "Data Science",
-  "Design",
-  "DevOps",
-  "Business",
-];
-
-const difficultyLevels = [
-  { value: "beginner", label: "Beginner" },
-  { value: "intermediate", label: "Intermediate" },
-  { value: "advanced", label: "Advanced" },
-];
-
-// Quill editor modules config
-const quillModules = {
-  toolbar: [
-    [{ header: [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    [{ color: [] }, { background: [] }],
-    ['link', 'image'],
-    ['clean'],
-  ],
-};
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Course } from "@/types";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { BookOpen } from "lucide-react";
 
 const CreateEditCourse = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const isEditing = !!id;
-  
+  const isEditMode = Boolean(id);
+
+  // Initialize course state
   const [course, setCourse] = useState<Partial<Course>>({
     title: "",
     description: "",
@@ -62,24 +37,27 @@ const CreateEditCourse = () => {
     price: 0,
   });
 
+  // Initialize course from API if in edit mode
   useEffect(() => {
-    if (isEditing) {
-      // Fetch course data if editing
+    if (isEditMode && id) {
       const existingCourse = getCourseById(id);
       if (existingCourse) {
         setCourse(existingCourse);
       } else {
         toast({
-          title: "Course not found",
-          description: "The course you're trying to edit doesn't exist.",
+          title: "Error",
+          description: "Course not found",
           variant: "destructive",
         });
         navigate("/admin/courses");
       }
     }
-  }, [id, isEditing, navigate, toast]);
+  }, [id, isEditMode, navigate, toast]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Handle input changes
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setCourse((prev) => ({
       ...prev,
@@ -87,13 +65,7 @@ const CreateEditCourse = () => {
     }));
   };
 
-  const handleDescriptionChange = (content: string) => {
-    setCourse(prev => ({
-      ...prev,
-      description: content
-    }));
-  };
-
+  // Handle select changes
   const handleSelectChange = (name: string, value: string) => {
     setCourse((prev) => ({
       ...prev,
@@ -101,48 +73,68 @@ const CreateEditCourse = () => {
     }));
   };
 
+  // Handle description changes from rich text editor
+  const handleDescriptionChange = (content: string) => {
+    setCourse((prev) => ({
+      ...prev,
+      description: content,
+    }));
+  };
+
+  // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate required fields
-    if (!course.title || !course.description || !course.category || !course.difficulty) {
+    if (!course.title || !course.description || !course.category) {
       toast({
-        title: "Validation error",
-        description: "Please fill all required fields.",
+        title: "Validation Error",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
     }
     
-    // Here we'd send data to an API, but for now just show a success message
+    // In a real app, this would make an API call
     toast({
-      title: isEditing ? "Course updated" : "Course created",
-      description: isEditing
-        ? "The course has been successfully updated."
-        : "The course has been successfully created.",
+      title: isEditMode ? "Course Updated" : "Course Created",
+      description: `"${course.title}" has been ${isEditMode ? "updated" : "created"} successfully.`,
     });
     
-    // Redirect back to courses list
+    // Redirect to courses list
     navigate("/admin/courses");
   };
 
   return (
     <MainLayout>
-      <div className="container max-w-4xl py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">
-            {isEditing ? "Edit Course" : "Create New Course"}
+      <div className="container py-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold">
+            {isEditMode ? "Edit Course" : "Create Course"}
           </h1>
-          <p className="text-muted-foreground">
-            {isEditing
-              ? "Update the details of your existing course"
-              : "Fill out the form below to create a new course"}
-          </p>
+          <div className="flex gap-2">
+            {isEditMode && (
+              <Button 
+                variant="default" 
+                onClick={() => navigate(`/admin/courses/${id}/chapters`)}
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                Manage Chapters
+              </Button>
+            )}
+            <Button variant="outline" onClick={() => navigate("/admin/courses")}>
+              Cancel
+            </Button>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <Card>
-            <CardContent className="pt-6">
+        <form onSubmit={handleSubmit}>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Course Details</CardTitle>
+            </CardHeader>
+            <CardContent>
               <div className="grid gap-6">
                 <div className="grid gap-3">
                   <Label htmlFor="title">Course Title *</Label>
@@ -150,115 +142,121 @@ const CreateEditCourse = () => {
                     id="title"
                     name="title"
                     value={course.title}
-                    onChange={handleChange}
-                    placeholder="e.g., Complete Web Development Bootcamp"
+                    onChange={handleInputChange}
+                    placeholder="e.g., Introduction to JavaScript"
                     required
                   />
                 </div>
-                
+
                 <div className="grid gap-3">
-                  <Label htmlFor="description">Course Description *</Label>
-                  <div className="min-h-[200px]">
+                  <Label htmlFor="description">Description *</Label>
+                  <div className="quill-container">
                     <ReactQuill
-                      theme="snow"
                       value={course.description}
                       onChange={handleDescriptionChange}
-                      modules={quillModules}
-                      placeholder="Provide a detailed description of your course"
-                      className="h-[180px] mb-12"
+                      theme="snow"
+                      placeholder="Provide a detailed description of your course..."
+                      modules={{
+                        toolbar: [
+                          [{ header: [1, 2, 3, false] }],
+                          ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                          [{ list: 'ordered' }, { list: 'bullet' }],
+                          ['link'],
+                          ['clean']
+                        ],
+                      }}
                     />
                   </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Use the rich text editor to format your description
+                  </div>
                 </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="thumbnail">Thumbnail URL *</Label>
-                  <Input
-                    id="thumbnail"
-                    name="thumbnail"
-                    value={course.thumbnail}
-                    onChange={handleChange}
-                    placeholder="https://example.com/image.jpg"
-                    required
-                  />
-                  {course.thumbnail && (
-                    <div className="mt-2">
-                      <img
-                        src={course.thumbnail}
-                        alt="Course thumbnail preview"
-                        className="w-full max-w-xs rounded-lg border"
-                      />
-                    </div>
-                  )}
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Course Settings</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6">
+                <div className="grid md:grid-cols-2 gap-6">
                   <div className="grid gap-3">
                     <Label htmlFor="category">Category *</Label>
                     <Select
-                      value={course.category || ""}
+                      value={course.category}
                       onValueChange={(value) => handleSelectChange("category", value)}
+                      required
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category} value={category}>
-                            {category}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="development">Development</SelectItem>
+                        <SelectItem value="design">Design</SelectItem>
+                        <SelectItem value="business">Business</SelectItem>
+                        <SelectItem value="marketing">Marketing</SelectItem>
+                        <SelectItem value="it-software">IT & Software</SelectItem>
+                        <SelectItem value="personal-development">Personal Development</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="grid gap-3">
                     <Label htmlFor="difficulty">Difficulty Level *</Label>
                     <Select
-                      value={course.difficulty || ""}
-                      onValueChange={(value) => handleSelectChange("difficulty", value)}
+                      value={course.difficulty}
+                      onValueChange={(value) => handleSelectChange("difficulty", value as "beginner" | "intermediate" | "advanced")}
+                      required
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
                       <SelectContent>
-                        {difficultyLevels.map((level) => (
-                          <SelectItem key={level.value} value={level.value}>
-                            {level.label}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="beginner">Beginner</SelectItem>
+                        <SelectItem value="intermediate">Intermediate</SelectItem>
+                        <SelectItem value="advanced">Advanced</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
-                
-                <div className="grid gap-3">
-                  <Label htmlFor="price">Price ($) *</Label>
-                  <Input
-                    id="price"
-                    name="price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={course.price}
-                    onChange={handleChange}
-                    placeholder="99.99"
-                    required
-                  />
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid gap-3">
+                    <Label htmlFor="price">Price ($) *</Label>
+                    <Input
+                      id="price"
+                      name="price"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={course.price}
+                      onChange={handleInputChange}
+                      placeholder="29.99"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <Label htmlFor="thumbnail">Thumbnail URL *</Label>
+                    <Input
+                      id="thumbnail"
+                      name="thumbnail"
+                      value={course.thumbnail}
+                      onChange={handleInputChange}
+                      placeholder="https://example.com/thumbnail.jpg"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/admin/courses")}
-            >
-              Cancel
-            </Button>
-            <Button type="submit">
-              {isEditing ? "Update Course" : "Create Course"}
+
+          <div className="flex justify-end">
+            <Button type="submit" className="px-6">
+              {isEditMode ? "Update Course" : "Create Course"}
             </Button>
           </div>
         </form>
